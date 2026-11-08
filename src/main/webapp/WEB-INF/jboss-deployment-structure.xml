@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  目的: このアプリのログを、WildFlyのログ機構ではなく
+  war同梱（WEB-INF/lib）の SLF4J + Logback で出力させる。
+
+  このファイルが無いと、WildFlyのloggingサブシステムが自前のログAPIモジュール
+  （org.apache.commons.logging、org.slf4j、org.slf4j.impl、org.jboss.logging など）を
+  デプロイに自動追加する。それらは WEB-INF/lib のjarより優先されるため、
+  同梱のLogbackと logback.xml が使われなくなる。
+-->
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <deployment>
+
+        <!--
+          このデプロイに対してloggingサブシステムを無効にする。
+          ログ用モジュールを自動追加しているのはこのサブシステム
+          （LoggingDependencyDeploymentProcessor）なので、
+          org.apache.commons.logging も追加されなくなる。commons-loggingを個別に除外する必要はない。
+        -->
+        <exclude-subsystems>
+            <subsystem name="logging" />
+        </exclude-subsystems>
+
+        <!--
+          念のため、WildFlyのSLF4J API（org.slf4j）と、その実装である
+          JBoss LogManager向けバインディング（org.slf4j.impl）も明示的に除外し、
+          必ず WEB-INF/lib の slf4j-api と logback-classic が使われるようにする。
+        -->
+        <exclusions>
+            <module name="org.slf4j" />
+            <module name="org.slf4j.impl" />
+        </exclusions>
+
+    </deployment>
+</jboss-deployment-structure>

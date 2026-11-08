@@ -1,0 +1,39 @@
+plugins {
+    id 'war'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework:spring-webmvc:7.0.10'
+    implementation 'org.thymeleaf:thymeleaf-spring6:3.1.5.RELEASE'
+
+    // Logging is bundled in the war: Spring (commons-logging) -> SLF4J -> Logback
+    implementation 'commons-logging:commons-logging:1.3.5'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'ch.qos.logback:logback-classic:1.5.38'
+
+    // Provided by WildFly
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Keep parameter names so @PathVariable/@RequestParam work without explicit names
+    options.compilerArgs << '-parameters'
+}
+
+war {
+    archiveFileName = 'springmvc-demo.war'
+}

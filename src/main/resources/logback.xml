@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  war同梱のLogback設定（war内では WEB-INF/classes/logback.xml になる）。
+  このデプロイではWildFlyのloggingサブシステムを除外しているため
+  （WEB-INF/jboss-deployment-structure.xml 参照）、アプリのログはすべてこのファイルで制御する。
+-->
+<configuration>
+
+    <!--
+      ログ出力ディレクトリ。WildFlyはシステムプロパティ jboss.server.log.dir
+      （standalone/log）を設定している。":-" の後ろはプロパティが無い場合
+      （WildFly以外で動かした場合など）の代替値。
+    -->
+    <property name="LOG_DIR" value="${jboss.server.log.dir:-logs}" />
+
+    <!-- ログファイル名（ディレクトリと拡張子を除いた部分）。 -->
+    <property name="LOG_NAME" value="springmvc-demo" />
+
+    <!-- ファイルに出力し、日付が変わると新しいファイルに切り替えるアペンダー。 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 現在書き込み中のファイル: standalone/log/springmvc-demo.log -->
+        <file>${LOG_DIR}/${LOG_NAME}.log</file>
+
+        <!-- 日次ローテーション。fileNamePattern 内の日付の単位で切り替わる。 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- ローテーション後のファイル名。例: springmvc-demo.2026-11-08.log（%d が日単位）。 -->
+            <fileNamePattern>${LOG_DIR}/${LOG_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- ローテーション済みファイルを14日分保持し、それより古いものは削除する。 -->
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+
+        <!-- 1行の書式: 日時、レベル、スレッド、ロガー名、メッセージ。文字コードはUTF-8。 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 全ロガー（Spring、Thymeleaf、アプリ）のデフォルトレベルをINFOにし、FILEに出力する。 -->
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
